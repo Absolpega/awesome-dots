@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+setxkbmap us
+
+setxkbmap -option altwin:swap_lalt_lwin
