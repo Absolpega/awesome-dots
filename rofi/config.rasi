@@ -1,7 +1,0 @@
-configuration {
-	show: "drun";
-	modi: "run,drun,window";
-	terminal: "alacritty";
-}
-
-@theme "/home/absolpega/.config/rofi/style.rasi"
