@@ -10,6 +10,6 @@ set -o vi
 
 alias ls='ls --color=auto'
 
-source /home/absolpega/.local/share/blesh/ble.sh
+source /usr/share/blesh/ble.sh
 [[ -s /etc/profile.d/autojump.sh ]] && source /etc/profile.d/autojump.sh
 eval "$(starship init bash)"
