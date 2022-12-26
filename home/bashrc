@@ -9,14 +9,7 @@ PS1='[\u@\h \W]\$ '
 set -o vi
 
 alias ls='ls --color=auto'
-alias kali='distrobox enter --root kali'
-alias rm='trash-put'
-
-export EDITOR="/usr/bin/nvim"
 
 source /home/absolpega/.local/share/blesh/ble.sh
 [[ -s /etc/profile.d/autojump.sh ]] && source /etc/profile.d/autojump.sh
 eval "$(starship init bash)"
-
-export LUA_PATH='/usr/share/lua/5.4/?.lua;/usr/share/lua/5.4/?/init.lua;/usr/lib/lua/5.4/?.lua;/usr/lib/lua/5.4/?/init.lua;./?.lua;./?/init.lua;/home/absolpega/.luarocks/share/lua/5.4/?.lua;/home/absolpega/.luarocks/share/lua/5.4/?/init.lua'
-export LUA_CPATH='/usr/lib/lua/5.4/?.so;/usr/lib/lua/5.4/loadall.so;./?.so;/home/absolpega/.luarocks/lib/lua/5.4/?.so'
