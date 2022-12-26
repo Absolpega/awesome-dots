@@ -5,3 +5,6 @@ adobe-source-code-pro-fonts
 nerd-fonts-jetbrains-mono
 picom-jonaburg-git
 alacritty
+autojump
+blesh
+starship
