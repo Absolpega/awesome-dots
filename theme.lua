@@ -14,6 +14,8 @@ local theme = {}
 
 theme.font          = "Source Code Pro Bold 10"
 
+theme.accent = "#00cccc"
+
 theme.bg_normal     = "#121212"
 theme.bg_focus      = theme.bg_normal
 theme.bg_urgent     = theme.bg_normal
@@ -21,19 +23,22 @@ theme.bg_minimize   = "#444444"
 theme.bg_systray    = theme.bg_normal
 
 theme.fg_normal     = "#ffd5cd"
-theme.fg_focus      = "#00cccc"
+theme.fg_focus      = theme.accent
 theme.fg_urgent     = "#d6295a"
 theme.fg_minimize   = theme.fg_normal
 
 theme.useless_gap   = 20
-theme.border_width  = 3
-theme.border_normal = "#000000"
-theme.border_focus  = "#00cccc"
+theme.useless_gap_width = 0
+theme.useless_gap_height = 20
+theme.border_width  = 1
+theme.border_normal = theme.bg_normal
+theme.border_focus  = theme.accent
+--theme.border_focus  = "#303030"
 theme.border_marked = "#91231c"
 
 theme.wibar_height = 14
 
---theme.wallpaper     = config_path.."aurora.jpg"
+theme.wallpaper     = config_path.."aurora.jpg"
 
 theme.top_gap = 30
 

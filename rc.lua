@@ -13,12 +13,10 @@ local beautiful = require("beautiful")
 -- Notification library
 local naughty = require("naughty")
 local menubar = require("menubar")
-local hotkeys_popup = require("awful.hotkeys_popup")
+--local hotkeys_popup = require("awful.hotkeys_popup")
 -- Enable hotkeys help widget for VIM and other apps
 -- when client with a matching name is opened:
 require("awful.hotkeys_popup.keys")
-
---local xrandr = require"xrandr"
 
 -- {{{ Error handling
 -- Check if awesome encountered an error during startup and fell back to
@@ -64,8 +62,8 @@ modkey = "Mod4"
 -- Table of layouts to cover with awful.layout.inc, order matters.
 awful.layout.layouts = {
     --awful.layout.suit.floating,
-    awful.layout.suit.tile,
-	--require'custom_tile',
+    --awful.layout.suit.tile,
+	require('tile'),
     --awful.layout.suit.tile.left,
     --awful.layout.suit.tile.bottom,
     --awful.layout.suit.tile.top,
@@ -169,8 +167,8 @@ function new_rect(cr, width, height)
 	gears.shape.rounded_rect(cr, width, height, beautiful.tagbox_round)
 end
 
-
-awful.spawn.with_shell("~/.screenlayout/main.sh")
+os.execute("~/.screenlayout/default.sh")
+os.execute("xrandr --dpi 96")
 
 awful.screen.connect_for_each_screen(function(s)
     -- Wallpaper
@@ -389,12 +387,8 @@ function lock()
 end
 
 function rofi(option)
-	--awful.spawn.with_shell'rofi -show drun -modi run,drun,window -theme ~/.config/style.rasi'
-	if option then
-		awful.spawn.with_shell('rofi -show ' .. option)
-	else
-		awful.spawn.with_shell'rofi -show drun'
-	end
+	if option == nil then option = "" end
+	awful.spawn.with_shell('rofi -show ' .. option)
 end
 
 --notif_popup = require'notifs.notif-center.notif_popup'
@@ -402,10 +396,17 @@ end
 -- {{{ Key bindings
 globalkeys = gears.table.join(
 	awful.key({modkey}, "F1", lock),
+	awful.key({modkey}, "F2", function()
+		local c = client.focus
+		c.width = c.width + 5
+		c.height = c.height + 5
+	end),
 
-	awful.key({modkey}, "o", rofi),
+	awful.key({modkey}, "o", function() rofi'drun' end),
 
 	awful.key({modkey}, "p", function() rofi'run' end),
+
+	awful.key({modkey}, "c", function() rofi"clipboard -run-command '{cmd}'" end),
 
 	--awful.key({modkey}, "Tab", function() awful.spawn.with_shell'rofi -show window' end),
 	awful.key({modkey}, "Tab", function() rofi'window' end),
@@ -420,8 +421,8 @@ globalkeys = gears.table.join(
 
 
 
-    awful.key({ modkey,           }, "s",      hotkeys_popup.show_help,
-              {description="show help", group="awesome"}),
+    --awful.key({ modkey,           }, "s",      hotkeys_popup.show_help,
+    --          {description="show help", group="awesome"}),
 
     awful.key({ modkey,           }, "Left",   awful.tag.viewprev,
               {description = "view previous", group = "tag"}),
@@ -823,3 +824,9 @@ for i = 1, #autostart do
 	awful.spawn.with_shell(autostart[i])
 end
 
+awful.spawn.with_shell(
+    'if (xrdb -query | grep -q "^awesome\\.started:\\s*true$"); then exit; fi;' ..
+    'xrdb -merge <<< "awesome.started:true";' ..
+    -- list each of your autostart commands, followed by ; inside single quotes, followed by ..
+    'dex --environment Awesome --autostart'
+    )

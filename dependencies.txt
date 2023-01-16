@@ -8,3 +8,5 @@ alacritty
 autojump
 blesh
 starship
+sed
+imagemagick
