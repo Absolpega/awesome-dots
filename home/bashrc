@@ -4,12 +4,56 @@
 
 # If not running interactively, don't do anything
 [[ $- != *i* ]] && return
+# -----------------------------------------------------------------------------------------------------
 
-PS1='[\u@\h \W]\$ '
+
+blesh_path=/usr/share/blesh/ble.sh
+
+# -----------------------------------------------------------------------------------------------------
+
+$blesh_path --noattach
+
+#PS1='[\u@\h \W]\$ '
+PS1=
 set -o vi
 
-alias ls='ls --color=auto'
+# -----------------------------------------------------------------------------------------------------
 
-source /usr/share/blesh/ble.sh
+export PATH=/opt/openresty/bin:~/.local/bin:$PATH
+
+export EDITOR=nvim-wrapper
+export SUDO_ASKPASS=/usr/local/bin/sudo-askpass
+
+export GTK_THEME='Yaru-Aqua-dark'
+
+# -----------------------------------------------------------------------------------------------------
+
+#alias ls='ls --color=auto'
+alias ls='exa -L 1 -T'
+alias l='ls'
+alias la='ls -hal'
+alias lt='exa -T'
+
+alias reload='source ~/.bashrc'
+alias rm='trash-put'
+alias sudo='sudo -A'
+
+# -----------------------------  https://unix.stackexchange.com/a/1292  -------------------------------
+
+export HISTFILESIZE=2000
+export HISTSIZE=2000
+
+# Avoid duplicates
+HISTCONTROL=ignoredups:erasedups
+# When the shell exits, append to the history file instead of overwriting it
+shopt -s histappend
+
+# After each command, append to the history file and reread it
+PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND$'\n'}history -a; history -c; history -r"
+
+# -----------------------------------------------------------------------------------------------------
+
+#source /usr/share/blesh/ble.sh
+[[ ${BLE_VERSION-} ]] && ble-attach
 [[ -s /etc/profile.d/autojump.sh ]] && source /etc/profile.d/autojump.sh
 eval "$(starship init bash)"

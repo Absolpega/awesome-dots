@@ -1,0 +1,18 @@
+/* colors -Authored by Axarva lol */
+// edited by absolpega
+
+* {
+  al:      #00000000;
+  bg:      #010101ff;
+  se:      #ffd5cdff;
+  fg:      #eeeeeeff;
+  ac:      #ea907aff;
+  red:     #EC7875ff;
+  green:   #61C766ff;
+  yellow:  #FDD835ff;
+  blue:    #42A5F5ff;
+  purple:  #BA68C8ff;
+  cyan:    #00ffffff;
+  bbg:     #303030ff;
+  cbg:     #30a0a0ff;
+}

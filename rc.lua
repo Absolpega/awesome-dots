@@ -18,6 +18,8 @@ local menubar = require("menubar")
 -- when client with a matching name is opened:
 require("awful.hotkeys_popup.keys")
 
+local shared = require("theme").shared
+
 -- {{{ Error handling
 -- Check if awesome encountered an error during startup and fell back to
 -- another config (This code will only ever execute for the fallback config)
@@ -170,8 +172,10 @@ end
 os.execute("~/.screenlayout/default.sh")
 os.execute("xrandr --dpi 96")
 
+function draw()
 awful.screen.connect_for_each_screen(function(s)
     -- Wallpaper
+	beautiful.wallpaper = shared.theme.wallpaper
     set_wallpaper(s)
 
     -- Each screen has its own tag table.
@@ -248,44 +252,50 @@ awful.screen.connect_for_each_screen(function(s)
 		filter  = awful.widget.tasklist.filter.currenttags,
 		buttons = tasklist_buttons
 	}
-	--[[
-	s.mywibox = wibox({
-	screen = s,
-	visible = true,
-	x = 5,
-	y = 5,
-	height = 20,
-	width = 1900,
-	})
-
-
-	--s.box = awful.wibar({position = "top", screen = s})
-	
-    s.mywibox:setup {
-        layout = wibox.layout.align.horizontal,
-        {
-            layout = wibox.layout.fixed.horizontal,
-            s.mytaglist,
-        },
-		nil,
-        {
-            layout = wibox.layout.fixed.horizontal,
-            mykeyboardlayout,
-            mysystray,
-            mytextclock,
-            s.mylayoutbox,
-        },
-    }
-	]]--
-
+---------------------------------------------------------
 	s.mytagbox = wibox{
 		screen = s,
 		visible = true,
-		x = s.geometry.x + beautiful.bar_gap,
+		x = s.geometry.x + beautiful.bar_x,
 		y = s.geometry.y + 8,
 		width = beautiful.tagbox_width,
 		height = beautiful.bar_height,
 	}
+
+---------------------------------------------------------
+	s.mykeyboardlayoutbox = wibox{
+		screen = s,
+		visible = true,
+		x = s.geometry.x + s.geometry.width - beautiful.bar_x - beautiful.timebox_width - beautiful.bar_x - beautiful.sysbox_width - beautiful.bar_x - beautiful.keyboardlayoutbox_width,
+		y = s.geometry.y + 8,
+		width = beautiful.keyboardlayoutbox_width,
+		height = beautiful.bar_height,
+	}
+
+---------------------------------------------------------
+	mysystray = wibox.widget.systray(false)
+	mysystray:set_base_size(beautiful.systray_icon_size)
+
+	s.mysysbox = wibox{
+		screen = s,
+		visible = true,
+		x = s.geometry.x + s.geometry.width - beautiful.bar_x - beautiful.timebox_width - beautiful.bar_x - beautiful.sysbox_width,
+		y = s.geometry.y + 8,
+		width = beautiful.sysbox_width,
+		--width = mysystray.width + 5,
+		height = beautiful.bar_height,
+	}
+
+---------------------------------------------------------
+	s.mytimebox = wibox{
+		screen = s,
+		visible = true,
+		x = s.geometry.x + s.geometry.width - beautiful.bar_x - beautiful.timebox_width,
+		y = s.geometry.y + 8,
+		width = beautiful.timebox_width,
+		height = beautiful.bar_height,
+	}
+---------------------------------------------------------
 
 	s.mytagbox:setup {
 		layout = wibox.layout.flex.horizontal,
@@ -293,61 +303,28 @@ awful.screen.connect_for_each_screen(function(s)
 		s.mytaglist,
 		nil,
 	}
-
-	s.mykeyboardlayoutbox = wibox{
-		screen = s,
-		visible = true,
-		x = s.geometry.x + s.geometry.width - beautiful.bar_gap - beautiful.timebox_width - beautiful.bar_gap - beautiful.sysbox_width - beautiful.bar_gap - beautiful.keyboardlayoutbox_width,
-		y = s.geometry.y + 8,
-		width = beautiful.keyboardlayoutbox_width,
-		height = beautiful.bar_height,
-	}
-
+----------------
 	s.mykeyboardlayoutbox:setup {
 		layout = wibox.layout.align.horizontal,
 		mykeyboardlayout,
 	}
-
-	s.mysysbox = wibox{
-		screen = s,
-		visible = true,
-		x = s.geometry.x + s.geometry.width - beautiful.bar_gap - beautiful.timebox_width - beautiful.bar_gap - beautiful.sysbox_width,
-		y = s.geometry.y + 8,
-		width = beautiful.sysbox_width,
-		height = beautiful.bar_height,
-	}
-
-	separator = wibox.widget.separator()
-	separator.visible = false
-
-	mysystray = wibox.widget.systray(false)
-
+----------------
 	s.mysysbox:setup {
 		layout = wibox.layout.align.horizontal,
-		--separator,
 		mysystray,
-		--separator,
 	}
-
-	s.mytimebox = wibox{
-		screen = s,
-		visible = true,
-		x = s.geometry.x + s.geometry.width - beautiful.bar_gap - beautiful.timebox_width,
-		y = s.geometry.y + 8,
-		width = beautiful.timebox_width,
-		height = beautiful.bar_height,
-	}
-
+----------------
 	s.mytimebox:setup {
 		layout = wibox.layout.align.horizontal,
 		mytextclock,
 	}
-
-
 	s.mytimebox:connect_signal('button::press', function()
 		date()
 	end)
+----------------
 end)
+end
+draw()
 -- }}}
 
 -- {{{ Mouse bindings
@@ -372,11 +349,9 @@ function date()
 		shape        = gears.shape.rounded_rect,
 		visible      = true,
 		hide_on_right_click = true,
-		screen = awful.mouse.screen,
+		screen = mouse.screen,
 	}
 end
-
-
 
 function snip()
 	awful.spawn.with_shell'flameshot gui'
@@ -397,9 +372,10 @@ end
 globalkeys = gears.table.join(
 	awful.key({modkey}, "F1", lock),
 	awful.key({modkey}, "F2", function()
-		local c = client.focus
-		c.width = c.width + 5
-		c.height = c.height + 5
+		shared.wallpaper_current_increment()
+		shared.configure_wallpaper()
+		beautiful.wallpaper = shared.theme.wallpaper
+		draw()
 	end),
 
 	awful.key({modkey}, "o", function() rofi'drun' end),
@@ -408,7 +384,6 @@ globalkeys = gears.table.join(
 
 	awful.key({modkey}, "c", function() rofi"clipboard -run-command '{cmd}'" end),
 
-	--awful.key({modkey}, "Tab", function() awful.spawn.with_shell'rofi -show window' end),
 	awful.key({modkey}, "Tab", function() rofi'window' end),
 
 	awful.key({}, "Print", snip),
@@ -416,6 +391,8 @@ globalkeys = gears.table.join(
 	awful.key({modkey}, "y", function() awful.spawn.with_shell'cz' end),
 
 	awful.key({modkey}, "u", function() awful.spawn.with_shell'correct_keyboard' end),
+
+	awful.key({modkey, "Shift"}, "v", function() awful.spawn.with_shell'vimclip' end),
 
 	--awful.key({modkey}, "n", function() notif_popup.visible = not notif_popup.visible end),
 
@@ -446,9 +423,10 @@ globalkeys = gears.table.join(
         end,
         {description = "focus previous by index", group = "client"}
     ),
-
+	--[[
     awful.key({ modkey,           }, "w", function () mymainmenu:show() end,
               {description = "show main menu", group = "awesome"}),
+	]]--
 
     -- Layout manipulation
     awful.key({ modkey, "Shift"   }, "j", function () awful.client.swap.byidx(  1)    end,
@@ -513,22 +491,22 @@ globalkeys = gears.table.join(
                     )
                   end
               end,
-              {description = "restore minimized", group = "client"}),
+              {description = "restore minimized", group = "client"})
 
     -- Prompt
-    awful.key({ modkey },            "r",     function () awful.screen.focused().mypromptbox:run() end,
-              {description = "run prompt", group = "launcher"}),
+    --awful.key({ modkey },            "r",     function () awful.screen.focused().mypromptbox:run() end,
+    --          {description = "run prompt", group = "launcher"}),
 
-    awful.key({ modkey }, "x",
-              function ()
-                  awful.prompt.run {
-                    prompt       = "Run Lua code: ",
-                    textbox      = awful.screen.focused().mypromptbox.widget,
-                    exe_callback = awful.util.eval,
-                    history_path = awful.util.get_cache_dir() .. "/history_eval"
-                  }
-              end,
-              {description = "lua execute prompt", group = "awesome"})
+    --awful.key({ modkey }, "x",
+    --          function ()
+    --              awful.prompt.run {
+    --                prompt       = "Run Lua code: ",
+    --                textbox      = awful.screen.focused().mypromptbox.widget,
+    --                exe_callback = awful.util.eval,
+    --                history_path = awful.util.get_cache_dir() .. "/history_eval"
+    --              }
+    --          end,
+    --          {description = "lua execute prompt", group = "awesome"})
 )
 
 clientkeys = gears.table.join(
@@ -543,8 +521,14 @@ clientkeys = gears.table.join(
 
     awful.key({ modkey,           }, "f",
         function (c)
-            c.fullscreen = not c.fullscreen
-            c:raise()
+			if c.fullscreen or c.maximized then
+				c.fullscreen = false
+				c.maximized = false
+				return
+			end
+			c.fullscreen = true
+			c.maximized = true
+            --c:raise()
         end,
         {description = "toggle fullscreen", group = "client"}),
 
@@ -710,7 +694,6 @@ awful.rules.rules = {
         -- and the name shown there might not match defined rules here.
         name = {
           "Event Tester",  -- xev.
-		  "Roblox",
         },
         role = {
           "AlarmWindow",  -- Thunderbird's calendar.
@@ -727,6 +710,14 @@ awful.rules.rules = {
     -- Set Firefox to always map on the tag named "2" on screen 1.
     -- { rule = { class = "Firefox" },
     --   properties = { screen = 1, tag = "2" } },
+	{ rule = { class = "Firefox" },
+        properties = { screen = 1, tag = "2" } },
+
+	{ rule = { class = "robloxplayerbeta.exe" },
+        properties = { maximized = false} },
+
+	{ rule = { name = "Roblox" },
+        properties = { maximized = false} },
 }
 -- }}}
 
@@ -800,19 +791,19 @@ screen.connect_signal("arrange", function (s)
     -- but iterate over clients instead of tiled_clients as tiled_clients doesn't include maximized windows
     for _, c in pairs(s.clients) do
         if (max or only_one) and not c.floating or c.maximized then
-            c.border_width = 0
-        else
+			c.border_width = 0
+		else
             c.border_width = beautiful.border_width
         end
     end
 end)
 
 -- Run garbage collector regularly to prevent memory leaks
-gears.timer {
-       timeout = 30,
-       autostart = true,
-       callback = function() collectgarbage() end
-}
+--gears.timer {
+--       timeout = 30,
+--       autostart = true,
+--       callback = function() collectgarbage() end
+--}
 
 
 autostart = {

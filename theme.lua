@@ -10,11 +10,78 @@ local gfs = require("gears.filesystem")
 local themes_path = gfs.get_themes_dir()
 local config_path = gfs.get_configuration_dir()
 
+local awful = require("awful")
+
+local shared = {}
 local theme = {}
 
-theme.font          = "Source Code Pro Bold 10"
+-- path to background folder
+theme.wallpaper_folder     = config_path.."/backgrounds/"
 
-theme.accent = "#00cccc"
+local wallpapers = {
+    "aurora.jpg",
+    "iss.jpg",
+    "sunset.jpg",
+    "snowy.jpg",
+}
+
+shared.wallpaper_current = 1
+
+shared.wallpaper_current_increment = function()
+    if shared.wallpaper_current + 1 > #wallpapers then
+        shared.wallpaper_current = 1
+    end
+    shared.wallpaper_current = shared.wallpaper_current + 1
+end
+
+--local wallpaper = "aurora.jpg"
+
+--local wallpaper_current = 2
+--local wallpaper = "iss.jpg"
+
+--local wallpaper_current = 3
+--local wallpaper = "sunset.jpg"
+
+--local wallpaper_current = 4
+--local wallpaper = "snowy.jpg"
+
+-- path to background
+if shared.wallpaper_current then
+    wallpaper = wallpapers[shared.wallpaper_current]
+end
+
+theme.wallpaper     = theme.wallpaper_folder..wallpaper
+
+local accents = {}
+accents[wallpaper]      = "#00cccc" -- default
+accents["aurora.jpg"]   = "#00cccc"
+accents["iss.jpg"]      = "#55cc77"
+accents["sunset.jpg"]   = "#ba8fff"
+accents["snowy.jpg"]    = "#888888"
+
+local recursed = false
+function configure_wallpaper(predefined)
+    if predefined then
+        theme.accent = accents[wallpaper]
+        return
+    end
+    local contrast = 1000
+    local brightness = 50
+    local handle = io.open(theme.wallpaper .. ".cached")
+    if handle ~= nil then
+        theme.accent = handle:read"*a"
+        handle:close()
+    else
+        if recursed then return end
+        os.execute("convert " .. theme.wallpaper .. " -resize 1920x1080 -crop 1280x720+320+180 -brightness-contrast " .. brightness .. " -contrast-stretch " .. contrast .. " -colors 1 -unique-colors -depth 6 txt:- | sed -n '2p' | cut -f 4 -d ' ' | tr -d '\n' > " .. theme.wallpaper .. ".cached")
+        configure_wallpaper()
+    end
+end
+shared.configure_wallpaper = configure_wallpaper
+
+configure_wallpaper(true)
+
+theme.font          = "Source Code Pro Bold 10"
 
 theme.bg_normal     = "#121212"
 theme.bg_focus      = theme.bg_normal
@@ -28,22 +95,17 @@ theme.fg_urgent     = "#d6295a"
 theme.fg_minimize   = theme.fg_normal
 
 theme.useless_gap   = 20
-theme.useless_gap_width = 0
-theme.useless_gap_height = 20
-theme.border_width  = 1
+theme.border_width  = 3
 theme.border_normal = theme.bg_normal
 theme.border_focus  = theme.accent
---theme.border_focus  = "#303030"
 theme.border_marked = "#91231c"
 
 theme.wibar_height = 14
 
-theme.wallpaper     = config_path.."aurora.jpg"
 
-theme.top_gap = 30
-
-theme.bar_gap       = 15
+theme.bar_x         = 15
 theme.bar_height    = 26
+theme.bar_gap       = 5
 
 theme.tagbox_width  = 252
 theme.tagbox_round  = 10
@@ -51,11 +113,14 @@ theme.tagbox_hover_bg = "#202020"
 theme.tagbox_hover_fg = "#ff0000"
 
 theme.keyboardlayoutbox_width = 32
-
 theme.timebox_width = 75
 
 theme.sysbox_width  = 120
+theme.sysbox_icon_size  = theme.bar_height - 10
 theme.systray_icon_spacing = 5
+
+theme.taglist_fg_empty = "#404040"
+theme.taglist_fg_occupied = theme.fg_normal
 
 -- There are other variable sets
 -- overriding the default one when
@@ -69,9 +134,6 @@ theme.systray_icon_spacing = 5
 -- hotkeys_[bg|fg|border_width|border_color|shape|opacity|modifiers_fg|label_bg|label_fg|group_margin|font|description_font]
 -- Example:
 --theme.taglist_bg_focus = "#ff0000"
-
-theme.taglist_fg_empty = "#404040"
-theme.taglist_fg_occupied = theme.fg_normal
 
 --[[
 -- Generate taglist squares:
@@ -103,6 +165,7 @@ theme.menu_width  = dpi(100)
 -- beautiful.variable in your rc.lua
 --theme.bg_widget = "#cc0000"
 
+--[[ unused
 -- Define the image to load
 theme.titlebar_close_button_normal = themes_path.."default/titlebar/close_normal.png"
 theme.titlebar_close_button_focus  = themes_path.."default/titlebar/close_focus.png"
@@ -130,7 +193,6 @@ theme.titlebar_maximized_button_focus_inactive  = themes_path.."default/titlebar
 theme.titlebar_maximized_button_normal_active = themes_path.."default/titlebar/maximized_normal_active.png"
 theme.titlebar_maximized_button_focus_active  = themes_path.."default/titlebar/maximized_focus_active.png"
 
-
 -- You can use your own layout icons like this:
 theme.layout_fairh = themes_path.."default/layouts/fairhw.png"
 theme.layout_fairv = themes_path.."default/layouts/fairvw.png"
@@ -148,6 +210,7 @@ theme.layout_cornernw = themes_path.."default/layouts/cornernww.png"
 theme.layout_cornerne = themes_path.."default/layouts/cornernew.png"
 theme.layout_cornersw = themes_path.."default/layouts/cornersww.png"
 theme.layout_cornerse = themes_path.."default/layouts/cornersew.png"
+]]--
 
 -- Generate Awesome icon:
 theme.awesome_icon = theme_assets.awesome_icon(
@@ -158,6 +221,8 @@ theme.awesome_icon = theme_assets.awesome_icon(
 -- from /usr/share/icons and /usr/share/icons/hicolor will be used.
 theme.icon_theme = nil
 
+theme.shared = shared
+theme.shared.theme = theme
 return theme
 
 -- vim: filetype=lua:expandtab:shiftwidth=4:tabstop=8:softtabstop=4:textwidth=80

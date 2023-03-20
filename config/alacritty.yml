@@ -37,11 +37,15 @@ colors:
   primary:
     background: '0x181a20'
     foreground: '0xeeffff'
+    #background: '0xeeffff'
+    #foreground: '0x181a20'
 
   # Colors the cursor will use if `custom_cursor_colors` is true
   cursor:
     text: '0x212121'
     cursor: '0xeeffff'
+    #text: '0xeeffff'
+    #cursor: '0x212121'
 
   # Normal colors
   normal:
