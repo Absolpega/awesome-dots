@@ -1,7 +1,9 @@
 configuration {
 	show: "drun";
-	modi: "run,drun,window";
+	modi: "clipboard:greenclip print,run,drun,window";
+	//modi: "run,drun,window";
 	terminal: "alacritty";
+	run-shell-command: "{terminal} -e bash -ic '{cmd} && read'";
 }
 
 @theme "/home/absolpega/.config/rofi/style.rasi"
